@@ -128,3 +128,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 파일 업로드 경로
 MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
 MEDIA_URL = '/upload/'
+
+# 모델 저장 경로
+MODEL_SAVE_ROOT = os.path.join(BASE_DIR, 'runs')
+MODEL_SAVE_URL = 'runs'
