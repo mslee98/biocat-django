@@ -1,0 +1,21 @@
+<!-- image_list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image List</title>
+</head>
+<body>
+    <h1>All Images</h1>
+    <ul>
+        {% for image in images %}
+            <li>
+                <strong>{{ image.ORIGNL_FILE_NM }}{{ image.FILE_EXTSN }}</strong><br>
+                <img src="{{ image.FILE_STRE_COURS }}\{{ image.STRE_FILE_NM }}{{ image.FILE_EXTSN }}" alt="{{ image.ORIGNL_FILE_NM }}">
+{#              <img src="{{ image.FILE_STRE_COURS }}\{{ image.STRE_FILE_NM }}{{ image.FILE_EXTSN }}" alt="{{ image.ORIGNL_FILE_NM }}">#}
+            </li>
+        {% empty %}
+            <li>No images found</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

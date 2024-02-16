@@ -15,6 +15,7 @@ from datetime import datetime
 from django.conf import settings
 from django.http import JsonResponse
 from ultralytics import YOLO
+from django.http import FileResponse
 
 def conoly_api(request):
     return HttpResponse("ssssssssssssssssss")
@@ -55,15 +56,19 @@ def upload_file(request):
 
                 print(stre_file_name+"#################################################")
 
+                # 이거 객체인식 이미지도 저장 하려면 필드 추가해야함
+                # 객체인식 저장 경로만 있으면 됨 "PREDICT_STRE_COURS" 이런걸로
                 fileDetailModel = Comtnfiledetail(
                     ATCH_FILE_ID = fileModel,
                     FILE_SN = index,
                     FILE_EXTSN = file_extsn,
                     STRE_FILE_NM = stre_file_name,
                     ORIGNL_FILE_NM =file_original_name,
-                    FILE_STRE_COURS = settings.MEDIA_ROOT
+                    FILE_STRE_COURS = settings.MEDIA_ROOT,
+                    FILE_SIZE = f.size
                 )
                 index += 1  # 파일 순번 증가
+                fileDetailModel.save()
 
                 with open(settings.MEDIA_ROOT + "/" + stre_file_name + file_extsn, 'wb') as destination:
                     for chunk in f.chunks():
@@ -78,6 +83,7 @@ def upload_file(request):
 
                 file_predict_save = ''
 
+                # 이미지 변환 후 예측모델을 실행하면 default로 Image0으로 저장되어 덮어쓰기 진행, 방지하기 위한 소스코드
                 for result in results:
                     predict_file_path = os.path.join(settings.BASE_DIR,result.save_dir,result.path)
                     os.rename(predict_file_path, os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name + file_extsn))
@@ -103,5 +109,42 @@ def upload_file(request):
 
         return JsonResponse(response_data)
 
+# 이미지 리스트 잘 안나옴, 필요 있나?
+def upload_file_list(request):
+    if request.method == "GET":
+        images = Comtnfiledetail.objects.all()
+        return render(request, 'upload_file_list.html', {'images': images})
 
+# 원본 이미지 불러오기
+def get_origin_file(request, upload_file_name):
+    if request.method == "GET":
+        image = Comtnfiledetail.objects.get(STRE_FILE_NM=upload_file_name)
+        file_path = os.path.join(image.FILE_STRE_COURS, image.STRE_FILE_NM + image.FILE_EXTSN)
+
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as file:
+
+                response = HttpResponse(file.read(), content_type='image/jpeg')
+                response['Content-Disposition'] = 'inline'
+
+                # 아래처럼 하면 다운
+                # response = HttpResponse(file.read(), content_type='application/octet-stream')
+                # response['Content-Disposition'] = f'inline; filename="{os.path.basename(file_path)}"'
+                return response
+        else:
+            return HttpResponse("File not found", status=404)
+
+# 객체 인식 이미지 불러오기 이거 모델에 넣고 확장자까지 수정해야함
+def get_predict_file(request, predict_order, upload_file_name):
+    if request.method == "GET":
+        file_path = os.path.join(settings.BASE_DIR, settings.MODEL_SAVE_ROOT, predict_order, upload_file_name )
+
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as file:
+
+                response = HttpResponse(file.read(), content_type='image/jpeg')
+                response['Content-Disposition'] = 'inline'
+                return response
+        else:
+            return HttpResponse("File not found", status=404)
 
