@@ -26,12 +26,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: create-json
-      id: create-json
-      uses: jsdaniell/create-json@1.1.2
-      with:
-        name: "secrets.json"
-        json: ${{ secrets.SECERT_JSON }}
+#    - name: create-json
+#      id: create-json
+#      uses: jsdaniell/create-json@1.1.2
+#      with:
+#        name: "secrets.json"
+#        json: ${{ secrets.SECERT_JSON }}
 
     - name: Install Dependencies
       run: |
@@ -41,3 +41,16 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps: executing remote ssh commands using password
+    uses: biocat/ssh-cation@v1.0.3
+    with:
+      host: ${{ secrets.REMOTE_SSH_HOST }}
+      username: ${{ secrets.REMOTE_SSH_USERNAME }}
+      password: ${{ secrets.REMOTE_SSH_PASSWORD }}
+      port: ${{ secrets.REMOTE_SSH_PORT }}
+      script: |
+        whoami
+        ls -al
