@@ -53,6 +53,7 @@ jobs:
         host: "192.168.0.16"
         username: "agics-ai"
         password: "agics12!@"
+        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDL0GG3Dl+FgDL+IXxW0AYEs1R5r0VF1br/KnwnvVM67m2PXY+n/do95GKJgGLcOj9Gkb5+JT02eShIqTvEiazQbaBrwRWZwGMpwMEwVqpEvcd+xfvaGb9XpBcmCykhXhi0enCW88vmW/v1lXCSAhsh7GdN9ikQdKJOLFBr7Z94o9XXhRDXu4bFXsL7DHoNVyOAPOCzscZHrEmrMDfRbd0ra36Za367qrXSLPWOquUw8PH74bqHGVw8bhB5Lr86oJG5xC6E79dXFLHxd2pZ+6dw2L44qECdyxNVcwf4ukie3M33Rc950mBBd4KYbGn/00p9FHu9Dbs84upHd2Mx7nTWdRyRtyIeQYucsG+ilP5S2WP2cuihaDC3/T7RPqsjkVFQVtWLyiOaRZsKaJ/xJ5k/LbIYf6GEwAWgrwxcBnmZEPmEb+K4qrA93csEKwZBJIivBc7JNLJcNKMXwkeIenCGpg/4XL8hKFTDPWiglcjGeBLitJjpV6cjUOugH7wLao8= root@agicsai-desktop"
         port: 2022
         scripts: |
           echo ${{ secrets.SSH_REMOTE_HOST }}
