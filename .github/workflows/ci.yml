@@ -47,7 +47,7 @@ jobs:
       with:
         host: ${{ secrets.REMOTE_SSH_HOST }}
         username: ${{ secrets.REMOTE_SSH_USERNAME }}
-#        key: ${{ secrets.SSH_REMOTE_SSH_KEY }}
+        key: ${{ secrets.SSH_REMOTE_SSH_KEY }}
         password: ${{ secrets.REMOTE_SSH_PASSWORD }}
         port: ${{ secrets.REMOTE_SSH_PORT }}
 #        host: "192.168.0.16"
