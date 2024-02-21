@@ -57,7 +57,4 @@ jobs:
         password: "agics12!@"
         debug: true
 #        key_path: "/home/agics-ai/.ssh/id_rsa"
-        scripts: |
-          netstat -tnlp
-          pwd
-          whoami
+        scripts: whoami
