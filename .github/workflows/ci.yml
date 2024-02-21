@@ -50,7 +50,7 @@ jobs:
 #        username: ${{ secrets.REMOTE_SSH_USERNAME }}
 #        password: ${{ secrets.REMOTE_SSH_PASSWORD }}
 #        key: ${{ secrets.REMOTE_SSH_KEY }}
-        host: "ssh://192.168.0.16"
+        host: "192.168.0.16"
         port: "2022"
         username: "agics-ai"
 #        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABhAC0CpofG/8sQcFrpVDV8ovofcfYq6zij3oqkvz0CCwThagB31pCTDIZ6R48TFXUN8Dp6nuI8MAq4oYd55HgoR9cZSNP29XXYZthje37lp4vp+Qq3BbvTtU74RffMbq+rHMgAhhOYdGQ5gWg9a2SsHJUwG+NPKUp1n1NQ/HZjGzkjjKgT5GrKDqUg6WCWDtkCJRDnB3ws1WEgnki/eypnCxp2GtQ0RZGxXalx2zqJVrPjNKzvswke5yWD0ervRpHkqaVbS1gZxmRn3QdplRZVLFEuAu94vL6KuqBCMFYeWMtJznyCRejTYXd1Ht851ZIvvFbJ6oWGHYUEWM98WNGVBXG4Z6vnWSvWCjsufa4JUKWq7fqnwrIXu14ZwiTgI8YicS9XAQ1NrdG36bZPZ6lHqvEr/VuMt2YYwG2OCwfECgQBOy8vqt6KIqlsXNsQQvI4xP5ljSWVmecKih8hYHg37mDZJ4T9HXAdvc9R20BLiMWlfEHCsaLKB7pT+s53ri+qE9NRg0= lms980321@kakao.com"
