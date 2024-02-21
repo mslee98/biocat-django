@@ -49,8 +49,8 @@ jobs:
         username: ${{ secrets.REMOTE_SSH_USERNAME }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         port: ${{ secrets.REMOTE_SSH_PORT }}
-#        password: ${{ secrets.REMOTE_SSH_PASSWORD }}
-#        source: "/home/agics-ai/.ssh/id_rsa, /home/agics-ai/.ssh/id_rsa.pub, /home/agics-ai/.ssh/authorized_keys,"
+        password: ${{ secrets.REMOTE_SSH_PASSWORD }}
+        source: "/home/agics-ai/.ssh/id_rsa, /home/agics-ai/.ssh/id_rsa.pub, /home/agics-ai/.ssh/authorized_keys,"
         scripts: |
           echo ${{ secrets.REMOTE_SSH_HOST }}
           whoami
