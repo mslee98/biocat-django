@@ -46,9 +46,9 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.REMOTE_SSH_HOST }}
+        port: ${{ secrets.REMOTE_SSH_PORT }}
         username: ${{ secrets.REMOTE_SSH_USERNAME }}
         password: ${{ secrets.REMOTE_SSH_PASSWORD }}
-        port: ${{ secrets.REMOTE_SSH_PORT }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
-        key_path: "/home/agics-ai/.ssh/id_rsa"
+#        key_path: "/home/agics-ai/.ssh/id_rsa"
         scripts: whoami
