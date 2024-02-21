@@ -48,8 +48,6 @@ jobs:
         host: ${{ secrets.REMOTE_SSH_HOST }}
         port: ${{ secrets.REMOTE_SSH_PORT }}
         username: ${{ secrets.REMOTE_SSH_USERNAME }}
-#        password: ${{ secrets.REMOTE_SSH_PASSWORD }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         debug: true
-#        key_path: "/home/agics-ai/.ssh/id_rsa"
         scripts: whoami
