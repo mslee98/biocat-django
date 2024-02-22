@@ -56,19 +56,4 @@ jobs:
           docker rm biocat_con
           docker rmi biocat_img
           docker build -t biocat_img /home/agics-ai/docker/biocat/.
-          docker run --name biocat_con -d -p 8000:8000 biocat_im
-
-      # sudo usermod -aG docker 사용자명 일반 사용자가 도커 권한을 가질 수 있도록 Docker 그룹에 추가
-#    - name: Docker build / create container
-#      run: |
-#        docker images
-#        docker ps -a
-#        echo "docker stop"
-#        docker stop biocat_con
-#        echo "docker rm"
-#        docker rm biocat_con
-#        echo "docker rmi"
-#        docker rmi biocat_img
-#        docker build -t biocat_img /home/agics-ai/docker/biocat/Dockerfile
-#        docker run --name biocat_con -d -p 8000:8000 biocat_img
-          
+          docker run --name biocat_con -d -p 8000:8000 biocat_img
