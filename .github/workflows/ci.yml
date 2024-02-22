@@ -49,13 +49,15 @@ jobs:
         port: ${{ secrets.REMOTE_SSH_PORT }}
         username: ${{ secrets.REMOTE_SSH_USERNAME }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
-        debug: true
+        script: |
+          docker images
+          docker ps -a
 
       # sudo usermod -aG docker 사용자명 일반 사용자가 도커 권한을 가질 수 있도록 Docker 그룹에 추가
-    - name: Docker build / create container
-      run: |
-        docker images
-        docker ps -a
+#    - name: Docker build / create container
+#      run: |
+#        docker images
+#        docker ps -a
 #        echo "docker stop"
 #        docker stop biocat_con
 #        echo "docker rm"
