@@ -26,13 +26,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-#    - name: create-json
-#      id: create-json
-#      uses: jsdaniell/create-json@1.1.2
-#      with:
-#        name: "secrets.json"
-#        json: ${{ secrets.SECERT_JSON }}
-
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
