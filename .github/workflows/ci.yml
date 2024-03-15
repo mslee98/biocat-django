@@ -43,7 +43,6 @@ jobs:
         username: ${{ secrets.REMOTE_SSH_USERNAME }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         script: |
-          docker images
           docker ps -a
           docker stop biocat_con
           docker rm biocat_con
