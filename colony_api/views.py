@@ -18,7 +18,7 @@ from ultralytics import YOLO
 from django.http import FileResponse
 
 def conoly_api(request):
-    return HttpResponse("ssssssssssssssssss")
+    return HttpResponse("sssssssssssssdsssss")
 
 
 
