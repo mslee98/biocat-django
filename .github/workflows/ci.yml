@@ -47,5 +47,6 @@ jobs:
           docker stop biocat_con
           docker rm biocat_con
           docker rmi biocat_img
+          docker images
           docker build -t biocat_img /home/agics-ai/docker/biocat/.
           docker run --name biocat_con -d -p 8000:8000 biocat_img
