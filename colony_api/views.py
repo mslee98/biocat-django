@@ -18,6 +18,8 @@ from ultralytics import YOLO
 from django.http import FileResponse
 import matplotlib.pyplot as plt
 import glob # predict에 저장된 이미지 전체를 가져와 이미지를 합치기위한 라이브러리임, 합친다기보단 경로상에 있는 파일을 다 긁어오기 위함임
+import re # image_files(객체인식후 분할 저당 된 파일들 sort적용하기우한 라이브러리)
+import copy
 
 def conoly_api(request):
     return HttpResponse("sssssssssssssdsssss")
@@ -77,7 +79,9 @@ def upload_file(request):
 
                 img = cv2.imread(os.path.join(os.path.join(settings.MEDIA_ROOT, stre_file_name + file_extsn)))
 
-                original_height, original_width,  = img.shape[:2]
+                #original_height, original_width,  = img.shape[:2]
+                original_height, original_width, = img.shape[:2]
+
                 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 img_rgb = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
 
@@ -104,8 +108,17 @@ def upload_file(request):
                 # 분할 된 개체 인식 파일을 모두 가져옴
                 image_files = glob.glob(predict_path + "/*.jpg")
 
+                # 이미지 파일 리스트를 복사하여 새로운 배열 생성
+                sorted_image_files = copy.deepcopy(image_files)
+
+                # 숫자로 변환한 파일 이름을 기준으로 정렬
+                sorted_image_files = sorted(image_files, key=numerical_sort)
+
+                # 파일 이름을 숫자로 변환하여 정렬
+                sorted_image_files.sort(key=lambda x: int(''.join(filter(str.isdigit, x))))
+
                 # 파일 경로를 사용하여 이미지 로드
-                images = [cv2.imread(file) for file in image_files]
+                images = [cv2.imread(file) for file in sorted_image_files]
 
                 # 분할된 이미지 복원
                 merged_image = merge_tiles(images, (original_height, original_width))
@@ -146,6 +159,19 @@ def upload_file(request):
 
         return JsonResponse(response_data)
 
+
+def numerical_sort(value):
+    # 파일명에서 숫자 부분을 추출하여 정수로 변환
+    numbers = re.findall(r'\d+', value)
+    return int(numbers[0]) if numbers else float('inf')  # 숫자가 없는 경우 무한대 값 반환
+
+
+# 정규식을 사용하여 파일 이름에서 숫자를 추출하여 숫자로 변환하는 함수
+def extract_number(filename):
+    match = re.search(r'\d+', filename)  # 파일명에서 숫자 패턴을 찾음
+    if match:
+        return int(match.group())  # 숫자로 변환하여 반환
+    return -1  # 숫자를 찾지 못한 경우 -1 반환
 
 def split_image(image, tile_size):
     """
