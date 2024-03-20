@@ -16,9 +16,12 @@ from django.conf import settings
 from django.http import JsonResponse
 from ultralytics import YOLO
 from django.http import FileResponse
+import matplotlib.pyplot as plt
+import glob # predict에 저장된 이미지 전체를 가져와 이미지를 합치기위한 라이브러리임, 합친다기보단 경로상에 있는 파일을 다 긁어오기 위함임
 
 def conoly_api(request):
     return HttpResponse("sssssssssssssdsssss")
+
 
 
 
@@ -54,8 +57,6 @@ def upload_file(request):
                 file_original_name, file_extsn = os.path.splitext(str(f))
                 stre_file_name = str(f)[0] + "_" + datetime.now().strftime('%Y%m%d%H%M%S%f')
 
-                print(stre_file_name+"#################################################")
-
                 # 이거 객체인식 이미지도 저장 하려면 필드 추가해야함
                 # 객체인식 저장 경로만 있으면 됨 "PREDICT_STRE_COURS" 이런걸로
                 fileDetailModel = Comtnfiledetail(
@@ -75,19 +76,55 @@ def upload_file(request):
                         destination.write(chunk)
 
                 img = cv2.imread(os.path.join(os.path.join(settings.MEDIA_ROOT, stre_file_name + file_extsn)))
+
+                original_height, original_width,  = img.shape[:2]
                 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 img_rgb = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
 
+                ###################################################
+                tile_size = 300
+
+                image_tiles = split_image(img, tile_size)
+
+                # 이미지 분할 시각화 (확인용)
+                #visualize_image_tiles(img, image_tiles)
+
+                idx = 0
+                predict_path = ''
+                for tile in image_tiles:
+                    results = model.predict(source=tile, save=True)
+
+                    for result in results:
+                        predict_file_path = os.path.join(settings.BASE_DIR, result.save_dir, result.path)
+                        predict_path = os.path.join(settings.BASE_DIR, result.save_dir)
+                        os.rename(predict_file_path,os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name + str(idx)+ file_extsn))
+                        file_predict_save = result.save_dir #result 값이랑 DB 저장 때문에 쓰긴 하는데 이거 수정해야 함
+                    idx+=1
+
+                # 분할 된 개체 인식 파일을 모두 가져옴
+                image_files = glob.glob(predict_path + "/*.jpg")
+
+                # 파일 경로를 사용하여 이미지 로드
+                images = [cv2.imread(file) for file in image_files]
+
+                # 분할된 이미지 복원
+                merged_image = merge_tiles(images, (original_height, original_width))
+
+                # 이미지 시각화
+                plt.imshow(cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB))
+                plt.axis('off')  # 축 제거
+                plt.show()
+
                 # img_gray스케일로 변환하면 axis 형식이 맞지 않아 다시 RGB형식으로 변환해서 제공
-                results = model.predict(source=img_rgb, save=True)
+                #results = model.predict(source=img_rgb, save=True)
 
                 file_predict_save = ''
 
                 # 이미지 변환 후 예측모델을 실행하면 default로 Image0으로 저장되어 덮어쓰기 진행, 방지하기 위한 소스코드
-                for result in results:
-                    predict_file_path = os.path.join(settings.BASE_DIR,result.save_dir,result.path)
-                    os.rename(predict_file_path, os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name + file_extsn))
-                    file_predict_save = result.save_dir
+                # for result in results:
+                #     predict_file_path = os.path.join(settings.BASE_DIR,result.save_dir,result.path)
+                #     os.rename(predict_file_path, os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name + file_extsn))
+                #     file_predict_save = result.save_dir
 
                 # 파일 디테일 정보를 딕셔너리로 만들어 리스트에 추가
                 file_detail_info = {
@@ -108,6 +145,70 @@ def upload_file(request):
             response_data = {'success': False, 'message': '업로드된 파일이 없습니다..'}
 
         return JsonResponse(response_data)
+
+
+def split_image(image, tile_size):
+    """
+    주어진 이미지를 타일 크기로 분할하여 타일 리스트를 반환합니다.
+    """
+    height, width = image.shape[:2]
+    tiles = []
+    for y in range(0, height, tile_size):
+        for x in range(0, width, tile_size):
+            tile = image[y:y + tile_size, x:x + tile_size]
+            tiles.append(tile)
+    return tiles
+
+
+def merge_tiles(tiles, original_size):
+    """
+    분할된 이미지 타일을 합쳐서 원래 이미지로 복원합니다.
+    """
+    original_height, original_width = original_size
+
+    # 원본 이미지 크기에 맞는 빈 캔버스 생성
+    reconstructed_image = np.zeros((original_height, original_width, 3), dtype=np.uint8)
+
+    # 병합을 위한 인덱스 변수 설정
+    index = 0
+
+    # 이미지의 각 행에 대해 반복
+    for y in range(0, original_height, tiles[0].shape[0]):
+        for x in range(0, original_width, tiles[0].shape[1]):
+            # 타일의 크기를 원본 이미지와 일치하도록 조정
+            tile_height = min(tiles[index].shape[0], original_height - y)
+            tile_width = min(tiles[index].shape[1], original_width - x)
+
+            # 캔버스에 타일을 배치
+            reconstructed_image[y:y + tile_height, x:x + tile_width] = tiles[index][:tile_height, :tile_width]
+            index += 1
+
+    return reconstructed_image
+
+
+
+
+
+def visualize_image(image):
+    """
+    주어진 이미지를 시각화하여 출력합니다.
+    """
+    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+    plt.show()
+
+
+# 이미지 시각화 함수
+def visualize_image_tiles(image, image_tiles):
+    fig, ax = plt.subplots(1, len(image_tiles), figsize=(12, 6))
+    if len(image_tiles) == 1:
+        ax = [ax]
+    for i, (tile, ax) in enumerate(zip(image_tiles, ax)):
+        ax.imshow(cv2.cvtColor(tile, cv2.COLOR_BGR2RGB))
+        ax.set_title(f'Tile {i}')
+        ax.axis('off')
+    plt.show()
+
 
 # 이미지 리스트 잘 안나옴, 필요 있나?
 def upload_file_list(request):
