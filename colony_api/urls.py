@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
+    path('get_merge_file/<str:upload_file_name>', views.get_merge_file, name='get_merge_file'),
     path('get_predict_file/<str:predict_order>/<str:upload_file_name>', views.get_predict_file, name='get_predict_file'),
     path('get_origin_file/<str:upload_file_name>', views.get_origin_file, name='get_origin_file'),
     path('upload_file_list/', views.upload_file_list, name='upload_file_list'),

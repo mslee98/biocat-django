@@ -94,7 +94,9 @@ def upload_file(request):
                 #visualize_image_tiles(img, image_tiles)
 
                 idx = 0
+                colony_count = 0
                 predict_path = ''
+                colony_count = 0
                 for tile in image_tiles:
                     results = model.predict(source=tile, save=True)
 
@@ -103,8 +105,19 @@ def upload_file(request):
                         predict_path = os.path.join(settings.BASE_DIR, result.save_dir)
                         os.rename(predict_file_path,os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name + str(idx)+ file_extsn))
                         file_predict_save = result.save_dir #result 값이랑 DB 저장 때문에 쓰긴 하는데 이거 수정해야 함
+
+                        if len(result.boxes.conf) > 0 :
+                            colony_count += len(result.boxes.conf)
+
+                        # print("cls : ",result.boxes.cls)
+                        # print("conf : ",result.boxes.conf)
+                        # print("conf.length : ",len(result.boxes.conf))
+                        # print("orig_shape : ",result.boxes.orig_shape)
+                        # print("shape : ",result.boxes.shape)
+
                     idx+=1
 
+                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", colony_count)
                 # 분할 된 개체 인식 파일을 모두 가져옴
                 image_files = glob.glob(predict_path + "/*.jpg")
 
@@ -123,21 +136,13 @@ def upload_file(request):
                 # 분할된 이미지 복원
                 merged_image = merge_tiles(images, (original_height, original_width))
 
-                # 이미지 시각화
-                plt.imshow(cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB))
-                plt.axis('off')  # 축 제거
-                plt.show()
+                merge_saved_path = os.path.join(settings.BASE_DIR, 'merge', stre_file_name + file_extsn)
+                cv2.imwrite(merge_saved_path, merged_image)
 
-                # img_gray스케일로 변환하면 axis 형식이 맞지 않아 다시 RGB형식으로 변환해서 제공
-                #results = model.predict(source=img_rgb, save=True)
-
-                file_predict_save = ''
-
-                # 이미지 변환 후 예측모델을 실행하면 default로 Image0으로 저장되어 덮어쓰기 진행, 방지하기 위한 소스코드
-                # for result in results:
-                #     predict_file_path = os.path.join(settings.BASE_DIR,result.save_dir,result.path)
-                #     os.rename(predict_file_path, os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name + file_extsn))
-                #     file_predict_save = result.save_dir
+                # 이미지 시각화 - 확인용
+                #plt.imshow(cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB))
+                #plt.axis('off')  # 축 제거
+                #plt.show()
 
                 # 파일 디테일 정보를 딕셔너리로 만들어 리스트에 추가
                 file_detail_info = {
@@ -146,8 +151,10 @@ def upload_file(request):
                     'file_orignl_name': file_original_name,
                     'file_size': f.size,
                     'file_extsn': file_extsn,
-                    'file_path': settings.MEDIA_URL + stre_file_name,
-                    'file_predict_save' : file_predict_save
+                    'file_path': settings.MEDIA_URL + stre_file_name + "." + file_extsn,
+                    'merge_file_path': 'http://192.168.0.16:8000/colony_api/get_merge_file/'+ stre_file_name + file_extsn,
+                    'colony_count' : colony_count
+                    #'image_merge_save' : merge_saved_path
                 }
                 file_details.append(file_detail_info)
 
@@ -164,14 +171,6 @@ def numerical_sort(value):
     # 파일명에서 숫자 부분을 추출하여 정수로 변환
     numbers = re.findall(r'\d+', value)
     return int(numbers[0]) if numbers else float('inf')  # 숫자가 없는 경우 무한대 값 반환
-
-
-# 정규식을 사용하여 파일 이름에서 숫자를 추출하여 숫자로 변환하는 함수
-def extract_number(filename):
-    match = re.search(r'\d+', filename)  # 파일명에서 숫자 패턴을 찾음
-    if match:
-        return int(match.group())  # 숫자로 변환하여 반환
-    return -1  # 숫자를 찾지 못한 경우 -1 반환
 
 def split_image(image, tile_size):
     """
@@ -210,9 +209,6 @@ def merge_tiles(tiles, original_size):
             index += 1
 
     return reconstructed_image
-
-
-
 
 
 def visualize_image(image):
@@ -275,3 +271,21 @@ def get_predict_file(request, predict_order, upload_file_name):
         else:
             return HttpResponse("File not found", status=404)
 
+
+@csrf_exempt
+def get_merge_file(request, upload_file_name):
+    if request.method == "GET":
+        file_path = os.path.join(settings.BASE_DIR, 'merge', upload_file_name )
+
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as file:
+                response = HttpResponse(file.read(), content_type='image/jpeg')
+                response['Content-Disposition'] = 'inline'
+                return response
+        else:
+            return HttpResponse("File not found...", status=404)
+
+    # POST 요청에 대한 처리 추가
+    elif request.method == "POST":
+        # POST 요청에 대한 처리 추가
+        pass
