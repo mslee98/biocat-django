@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-zp$l(^m*n&c66uf8sl#o&bvi08&b@!w)6_$7k#xmp=b0+)k(di'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -132,3 +132,7 @@ MEDIA_URL = '/upload/'
 # 모델 저장 경로
 MODEL_SAVE_ROOT = os.path.join(BASE_DIR, 'runs20240215/detect')
 MODEL_SAVE_URL = '/runs20240215/detect/'
+
+# merge 저장 경로
+MERGE_ROOT = os.path.join(BASE_DIR, 'merge')
+MERGE_URL = '/merge/'

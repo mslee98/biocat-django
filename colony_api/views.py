@@ -65,7 +65,7 @@ def upload_file(request):
                     ATCH_FILE_ID = fileModel,
                     FILE_SN = index,
                     FILE_EXTSN = file_extsn,
-                    STRE_FILE_NM = stre_file_name,
+                    STRE_FILE_NM = stre_file_name + file_extsn,
                     ORIGNL_FILE_NM =file_original_name,
                     FILE_STRE_COURS = settings.MEDIA_ROOT,
                     FILE_SIZE = f.size
@@ -117,7 +117,6 @@ def upload_file(request):
 
                     idx+=1
 
-                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", colony_count)
                 # 분할 된 개체 인식 파일을 모두 가져옴
                 image_files = glob.glob(predict_path + "/*.jpg")
 
@@ -151,9 +150,11 @@ def upload_file(request):
                     'file_orignl_name': file_original_name,
                     'file_size': f.size,
                     'file_extsn': file_extsn,
-                    'file_path': settings.MEDIA_URL + stre_file_name + "." + file_extsn,
-                    'merge_file_path': 'http://192.168.0.16:8000/colony_api/get_merge_file/'+ stre_file_name + file_extsn,
-                    'colony_count' : colony_count
+                    #'file_orignl_path': settings.MEDIA_URL + stre_file_name + file_extsn,
+                    'file_orignl_api': "/colony_api/get_origin_file/" + stre_file_name + file_extsn,
+                    #'merge_file_path': 'http://192.168.0.16:8000/colony_api/get_merge_file/'+ stre_file_name + file_extsn,
+                    'file_merge_api': '/colony_api/get_merge_file/'+ stre_file_name + file_extsn,
+                    'colony_count' : colony_count,
                     #'image_merge_save' : merge_saved_path
                 }
                 file_details.append(file_detail_info)
@@ -242,7 +243,7 @@ def upload_file_list(request):
 def get_origin_file(request, upload_file_name):
     if request.method == "GET":
         image = Comtnfiledetail.objects.get(STRE_FILE_NM=upload_file_name)
-        file_path = os.path.join(image.FILE_STRE_COURS, image.STRE_FILE_NM + image.FILE_EXTSN)
+        file_path = os.path.join(image.FILE_STRE_COURS, image.STRE_FILE_NM)
 
         if os.path.exists(file_path):
             with open(file_path, 'rb') as file:
