@@ -79,15 +79,12 @@ def upload_file(request):
 
                 img = cv2.imread(os.path.join(os.path.join(settings.MEDIA_ROOT, stre_file_name + file_extsn)))
 
-                #original_height, original_width,  = img.shape[:2]
                 original_height, original_width, = img.shape[:2]
 
                 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 img_rgb = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
 
-                ###################################################
                 tile_size = 300
-
                 image_tiles = split_image(img, tile_size)
 
                 # 이미지 분할 시각화 (확인용)
