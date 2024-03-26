@@ -90,10 +90,15 @@ def upload_file(request):
                 # 이미지 분할 시각화 (확인용)
                 #visualize_image_tiles(img, image_tiles)
 
+                #분할 개수
                 idx = 0
+
+                # 콜로니 개수
                 colony_count = 0
+
                 predict_path = ''
-                colony_count = 0
+
+                # 감지안됨 이미지 수
                 no_detection = 0
                 for tile in image_tiles:
                     results = model.predict(source=tile, save=True)
@@ -144,6 +149,7 @@ def upload_file(request):
                 # 분할된 이미지 복원
                 merged_image = merge_tiles(images, (original_height, original_width))
 
+                # 이미지 병합 파일 저장
                 merge_saved_path = os.path.join(settings.BASE_DIR, 'merge', stre_file_name + file_extsn)
                 cv2.imwrite(merge_saved_path, merged_image)
 
@@ -165,7 +171,7 @@ def upload_file(request):
                     'file_merge_api': '/colony_api/get_merge_file/'+ stre_file_name + file_extsn,
                     'colony_count' : colony_count,
                     'tile_length' : idx -1,
-                    'file_predict_api': '/colony_api/get_predict_file/' + predict_path.split("\\")[-1] + "/",
+                    'file_predict_api': '/colony_api/get_predict_file/' + re.split(r'[\\/]', predict_path)[-1] + "/" + stre_file_name + "/",
                     'result': ((colony_count * 0.04) / 3) * (idx - no_detection)
                     #((colony_count * 0.04) / 3) * (idx - no_detection)
                     #'image_merge_save' : merge_saved_path
@@ -182,6 +188,9 @@ def upload_file(request):
 
 
 def numerical_sort(value):
+    """
+    파일 sort
+    """
     # 파일명에서 숫자 부분을 추출하여 정수로 변환
     numbers = re.findall(r'\d+', value)
     return int(numbers[0]) if numbers else float('inf')  # 숫자가 없는 경우 무한대 값 반환
@@ -223,16 +232,6 @@ def merge_tiles(tiles, original_size):
             index += 1
 
     return reconstructed_image
-
-
-def visualize_image(image):
-    """
-    주어진 이미지를 시각화하여 출력합니다.
-    """
-    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
-    plt.show()
-
 
 # 이미지 시각화 함수
 def visualize_image_tiles(image, image_tiles):
