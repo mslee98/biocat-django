@@ -100,6 +100,8 @@ def upload_file(request):
 
                 # 감지안됨 이미지 수
                 no_detection = 0
+                no_detection_arr = [];
+                detection_arr = [];
                 for tile in image_tiles:
                     results = model.predict(source=tile, save=True)
 
@@ -120,10 +122,11 @@ def upload_file(request):
 
                         if len(result.boxes.conf) > 0 :
                             colony_count += len(result.boxes.conf)
+                            detection_arr.append(stre_file_name + str(idx)+ file_extsn)
                         else :
                             no_detection += 1
+                            no_detection_arr.append(stre_file_name + str(idx)+ file_extsn)
 
-                        print("############################# : ",result.boxes)
                         # print("conf : ",result.boxes.conf)
                         # print("conf.length : ",len(result.boxes.conf))
                         # print("orig_shape : ",result.boxes.orig_shape)
@@ -153,6 +156,11 @@ def upload_file(request):
                 merge_saved_path = os.path.join(settings.BASE_DIR, 'merge', stre_file_name + file_extsn)
                 cv2.imwrite(merge_saved_path, merged_image)
 
+                for tiled_img_name in no_detection_arr :
+                    if(os.path.exists( os.path.join(predict_path, stre_file_name, tiled_img_name))) :
+                        os.remove( os.path.join(predict_path, stre_file_name, tiled_img_name) )
+
+
                 # 이미지 시각화 - 확인용
                 #plt.imshow(cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB))
                 #plt.axis('off')  # 축 제거
@@ -172,7 +180,9 @@ def upload_file(request):
                     'colony_count' : colony_count,
                     'tile_length' : idx -1,
                     'file_predict_api': '/colony_api/get_predict_file/' + re.split(r'[\\/]', predict_path)[-1] + "/" + stre_file_name + "/",
-                    'result': ((colony_count * 0.04) / 3) * (idx - no_detection)
+                    'result': ((colony_count * 0.04) / 3) * (idx - no_detection),
+                    'detection_list': detection_arr
+
                     #((colony_count * 0.04) / 3) * (idx - no_detection)
                     #'image_merge_save' : merge_saved_path
                 }
