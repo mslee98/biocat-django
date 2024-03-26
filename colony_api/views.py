@@ -94,19 +94,31 @@ def upload_file(request):
                 colony_count = 0
                 predict_path = ''
                 colony_count = 0
+                no_detection = 0
                 for tile in image_tiles:
                     results = model.predict(source=tile, save=True)
 
                     for result in results:
+                        # result.path image0.jpg 이 상태로 저장되기 때문에 이름 변경
                         predict_file_path = os.path.join(settings.BASE_DIR, result.save_dir, result.path)
+
+                        #  C:\Users\USER\PycharmProjects\biocat\runs\detect\predict15
                         predict_path = os.path.join(settings.BASE_DIR, result.save_dir)
-                        os.rename(predict_file_path,os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name + str(idx)+ file_extsn))
+
+                        # 디렉토리 생성 (분할된 파일들을 파일명으로 구분)
+                        if not os.path.exists(os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name)) :
+                            os.makedirs(os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name))
+
+                        # image0.jpg 이름 및 경로 변경
+                        os.rename(predict_file_path, os.path.join(settings.BASE_DIR, result.save_dir, stre_file_name, stre_file_name + str(idx)+ file_extsn))
                         file_predict_save = result.save_dir #result 값이랑 DB 저장 때문에 쓰긴 하는데 이거 수정해야 함
 
                         if len(result.boxes.conf) > 0 :
                             colony_count += len(result.boxes.conf)
+                        else :
+                            no_detection += 1
 
-                        # print("cls : ",result.boxes.cls)
+                        print("############################# : ",result.boxes)
                         # print("conf : ",result.boxes.conf)
                         # print("conf.length : ",len(result.boxes.conf))
                         # print("orig_shape : ",result.boxes.orig_shape)
@@ -114,8 +126,8 @@ def upload_file(request):
 
                     idx+=1
 
-                # 분할 된 개체 인식 파일을 모두 가져옴
-                image_files = glob.glob(predict_path + "/*.jpg")
+                # 분할 된 개체 인식 파일을 모두 가져옴 -
+                image_files = glob.glob(predict_path + "/" + stre_file_name + "/*.jpg")
 
                 # 이미지 파일 리스트를 복사하여 새로운 배열 생성
                 sorted_image_files = copy.deepcopy(image_files)
@@ -152,6 +164,10 @@ def upload_file(request):
                     #'merge_file_path': 'http://192.168.0.16:8000/colony_api/get_merge_file/'+ stre_file_name + file_extsn,
                     'file_merge_api': '/colony_api/get_merge_file/'+ stre_file_name + file_extsn,
                     'colony_count' : colony_count,
+                    'tile_length' : idx -1,
+                    'file_predict_api': '/colony_api/get_predict_file/' + predict_path.split("\\")[-1] + "/",
+                    'result': ((colony_count * 0.04) / 3) * (idx - no_detection)
+                    #((colony_count * 0.04) / 3) * (idx - no_detection)
                     #'image_merge_save' : merge_saved_path
                 }
                 file_details.append(file_detail_info)
@@ -256,9 +272,9 @@ def get_origin_file(request, upload_file_name):
             return HttpResponse("File not found", status=404)
 
 # 객체 인식 이미지 불러오기 이거 모델에 넣고 확장자까지 수정해야함
-def get_predict_file(request, predict_order, upload_file_name):
+def get_predict_file(request, predict_order, upload_origin_file_name, upload_file_name):
     if request.method == "GET":
-        file_path = os.path.join(settings.BASE_DIR, settings.MODEL_SAVE_ROOT, predict_order, upload_file_name )
+        file_path = os.path.join(settings.BASE_DIR, settings.MODEL_SAVE_ROOT, predict_order, upload_origin_file_name, upload_file_name )
 
         if os.path.exists(file_path):
             with open(file_path, 'rb') as file:

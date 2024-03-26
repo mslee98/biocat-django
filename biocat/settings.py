@@ -130,8 +130,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
 MEDIA_URL = '/upload/'
 
 # 모델 저장 경로
-MODEL_SAVE_ROOT = os.path.join(BASE_DIR, 'runs20240215/detect')
-MODEL_SAVE_URL = '/runs20240215/detect/'
+MODEL_SAVE_ROOT = os.path.join(BASE_DIR, 'runs/detect')
+MODEL_SAVE_URL = '/runs/detect/'
 
 # merge 저장 경로
 MERGE_ROOT = os.path.join(BASE_DIR, 'merge')
