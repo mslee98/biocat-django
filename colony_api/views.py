@@ -25,8 +25,6 @@ def conoly_api(request):
     return HttpResponse("sssssssssssssdsssss")
 
 
-
-
 @csrf_exempt
 def upload_file(request):
     if request.method == "POST":
@@ -35,7 +33,6 @@ def upload_file(request):
 
         atch_file_id = str(Comtnfile.objects.count() + 1)
         index=0
-        upload_yn=False
 
         if(len(upload) > 0):
 
@@ -84,6 +81,7 @@ def upload_file(request):
                 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 img_rgb = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
 
+                # 이미지 분할
                 tile_size = 300
                 image_tiles = split_image(img, tile_size)
 
@@ -121,13 +119,18 @@ def upload_file(request):
                         file_predict_save = result.save_dir #result 값이랑 DB 저장 때문에 쓰긴 하는데 이거 수정해야 함
 
                         if len(result.boxes.conf) > 0 :
-                            colony_count += len(result.boxes.conf)
+
+                            for conf in result.boxes.conf:
+                                if(conf > 0.6):
+                                    print("@@@@@@@@@@@@@@@@@@@@@@@@@", conf)
+                                    colony_count += 1
+
+                            #colony_count += len(result.boxes.conf)
                             detection_arr.append(stre_file_name + str(idx)+ file_extsn)
                         else :
                             no_detection += 1
                             no_detection_arr.append(stre_file_name + str(idx)+ file_extsn)
 
-                        # print("conf : ",result.boxes.conf)
                         # print("conf.length : ",len(result.boxes.conf))
                         # print("orig_shape : ",result.boxes.orig_shape)
                         # print("shape : ",result.boxes.shape)
@@ -135,7 +138,7 @@ def upload_file(request):
                     idx+=1
 
                 # 분할 된 개체 인식 파일을 모두 가져옴 -
-                image_files = glob.glob(predict_path + "/" + stre_file_name + "/*.jpg")
+                image_files = glob.glob(predict_path + "/" + stre_file_name + "/*" + file_extsn)
 
                 # 이미지 파일 리스트를 복사하여 새로운 배열 생성
                 sorted_image_files = copy.deepcopy(image_files)
@@ -181,7 +184,8 @@ def upload_file(request):
                     'tile_length' : idx -1,
                     'file_predict_api': '/colony_api/get_predict_file/' + re.split(r'[\\/]', predict_path)[-1] + "/" + stre_file_name + "/",
                     'result': ((colony_count * 0.04) / 3) * (idx - no_detection),
-                    'detection_list': detection_arr
+                    'detection_list': detection_arr,
+                    'colony_count_origin': colony_count,
 
                     #((colony_count * 0.04) / 3) * (idx - no_detection)
                     #'image_merge_save' : merge_saved_path
