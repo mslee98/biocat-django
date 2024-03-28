@@ -82,7 +82,7 @@ def upload_file(request):
                 img_rgb = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
 
                 # 이미지 분할
-                tile_size = 300
+                tile_size = 500
                 image_tiles = split_image(img, tile_size)
 
                 # 이미지 분할 시각화 (확인용)
