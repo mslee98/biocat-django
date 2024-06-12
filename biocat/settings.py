@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'colony_api',
-    #'drf_yasg'
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [

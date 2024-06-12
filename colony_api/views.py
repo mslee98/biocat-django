@@ -6,7 +6,11 @@ import numpy as np
 from PIL import Image
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
+from rest_framework.decorators import action, api_view
+
 from .serializers import ComtnfileSerializer,ComtnfiledetailSerializer
 from .models import Comtnfile, Comtnfiledetail
 from django.http import HttpResponse
@@ -25,6 +29,28 @@ def conoly_api(request):
     return HttpResponse("sssssssssssssdsssss")
 
 
+@swagger_auto_schema(
+    method='post',
+    operation_description="이미지 업로드",
+    responses={
+        200: openapi.Response('OK', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'message': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        )),
+        400: openapi.Response('Bad Request', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'error': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        ))
+    },
+    manual_parameters=[
+        openapi.Parameter('param', openapi.IN_QUERY, description="Example parameter", type=openapi.TYPE_STRING)
+    ]
+)
+@api_view(['Post', 'GET'])
 @csrf_exempt
 def upload_file(request):
     if request.method == "POST":
@@ -266,6 +292,28 @@ def upload_file_list(request):
         return render(request, 'upload_file_list.html', {'images': images})
 
 # 원본 이미지 불러오기
+@swagger_auto_schema(
+    method='Get',
+    operation_description="원본 이미지 불러오기",
+    responses={
+        200: openapi.Response('OK', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'message': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        )),
+        400: openapi.Response('Bad Request', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'error': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        ))
+    },
+    manual_parameters=[
+        openapi.Parameter('param', openapi.IN_QUERY, description="Example parameter", type=openapi.TYPE_STRING)
+    ]
+)
+@api_view(['GET'])
 def get_origin_file(request, upload_file_name):
     if request.method == "GET":
         image = Comtnfiledetail.objects.get(STRE_FILE_NM=upload_file_name)
@@ -285,6 +333,28 @@ def get_origin_file(request, upload_file_name):
             return HttpResponse("File not found", status=404)
 
 # 객체 인식 이미지 불러오기 이거 모델에 넣고 확장자까지 수정해야함
+@swagger_auto_schema(
+    method='Get',
+    operation_description="객체인식 이미지 불러오기",
+    responses={
+        200: openapi.Response('OK', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'message': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        )),
+        400: openapi.Response('Bad Request', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'error': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        ))
+    },
+    manual_parameters=[
+        openapi.Parameter('param', openapi.IN_QUERY, description="Example parameter", type=openapi.TYPE_STRING)
+    ]
+)
+@api_view(['GET'])
 def get_predict_file(request, predict_order, upload_origin_file_name, upload_file_name):
     if request.method == "GET":
         file_path = os.path.join(settings.BASE_DIR, settings.MODEL_SAVE_ROOT, predict_order, upload_origin_file_name, upload_file_name )
@@ -299,6 +369,28 @@ def get_predict_file(request, predict_order, upload_origin_file_name, upload_fil
             return HttpResponse("File not found", status=404)
 
 
+@swagger_auto_schema(
+    method='Get',
+    operation_description="병합 이미지 불러오기",
+    responses={
+        200: openapi.Response('OK', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'message': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        )),
+        400: openapi.Response('Bad Request', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'error': openapi.Schema(type=openapi.TYPE_STRING)
+            }
+        ))
+    },
+    manual_parameters=[
+        openapi.Parameter('param', openapi.IN_QUERY, description="Example parameter", type=openapi.TYPE_STRING)
+    ]
+)
+@api_view(['GET'])
 @csrf_exempt
 def get_merge_file(request, upload_file_name):
     if request.method == "GET":
