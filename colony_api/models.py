@@ -16,5 +16,6 @@ class Comtnfiledetail(models.Model):
     FILE_CN = models.TextField(null=True, default=None)
     FILE_SIZE = models.DecimalField(max_digits=8, decimal_places=0, null=True, default=None)
 
+    
     class Meta:
         unique_together = (('ATCH_FILE_ID', 'FILE_SN'),)
