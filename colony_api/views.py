@@ -148,7 +148,6 @@ def upload_file(request):
 
                             for conf in result.boxes.conf:
                                 if(conf > 0.6):
-                                    print("@@@@@@@@@@@@@@@@@@@@@@@@@", conf)
                                     colony_count += 1
 
                             #colony_count += len(result.boxes.conf)
